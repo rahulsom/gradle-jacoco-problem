@@ -1,0 +1,43 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+repositories {
+    jcenter()
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output
+            runtimeClasspath += main.output
+            srcDir file('src/integrationTest/java')
+        }
+        resources.srcDir file('src/integrationTest/resources')
+    }
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+}
+
+task integrationTest(type: Test) {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+check.dependsOn integrationTest
+
+jacoco {
+    toolVersion = '0.7.9'
+}
+
+jacocoTestReport {
+    executionData tasks.withType(Test)
+}
+
+check.dependsOn 'jacocoTestReport'
